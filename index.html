@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Surprise</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Nunito', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+            color: #e0e0e0;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        section {
+            width: 100%;
+            background: rgba(20, 20, 20, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 15px 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            display: none;
+            border: 1px solid #333;
+        }
+        
+        h1 {
+            color: #bb86fc;
+            margin-bottom: 15px;
+            font-size: 2rem;
+            text-shadow: 0 0 10px rgba(187, 134, 252, 0.5);
+        }
+        
+        h2 {
+            color: #03dac6;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+        
+        p {
+            margin-bottom: 15px;
+            font-size: 1rem;
+            color: #e0e0e0;
+            line-height: 1.5;
+        }
+        
+        /* Loading Screen */
+        #loading-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .loading-bar-container {
+            width: 90%;
+            height: 25px;
+            background: rgba(40, 40, 40, 0.8);
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 25px 0;
+            border: 2px solid #bb86fc;
+        }
+        
+        .loading-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #bb86fc, #6200ea);
+            border-radius: 15px;
+            transition: width 0.5s ease;
+        }
+        
+        .loading-text {
+            font-size: 1.2rem;
+            color: #03dac6;
+            margin-top: 15px;
+        }
+        
+        /* Funny Questions */
+        .question {
+            margin-bottom: 20px;
+        }
+        
+        .timer-container {
+            width: 100%;
+            height: 8px;
+            background: rgba(40, 40, 40, 0.8);
+            border-radius: 5px;
+            margin: 15px 0;
+            overflow: hidden;
+            border: 1px solid #bb86fc;
+        }
+        
+        .timer-bar {
+            height: 100%;
+            width: 100%;
+            background: linear-gradient(90deg, #bb86fc, #6200ea);
+            border-radius: 5px;
+            animation: timer 5s linear;
+        }
+        
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .option {
+            padding: 12px;
+            background: linear-gradient(45deg, #333, #444);
+            color: #e0e0e0;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            font-weight: 500;
+            text-align: left;
+            border: 1px solid #444;
+        }
+        
+        .option:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 10px rgba(187, 134, 252, 0.5);
+            background: linear-gradient(45deg, #444, #555);
+        }
+        
+        .option.wrong {
+            background: linear-gradient(45deg, #cf6679, #b00020);
+            color: white;
+        }
+        
+        /* Smart vs Dumb */
+        .choice-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 25px;
+        }
+        
+        .choice-btn {
+            padding: 15px;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+        
+        #smart-btn {
+            background: linear-gradient(45deg, #03dac6, #018786);
+            color: #000;
+            border: 1px solid #03dac6;
+        }
+        
+        #smart-btn:hover {
+            box-shadow: 0 0 15px rgba(3, 218, 198, 0.5);
+        }
+        
+        #dumb-btn {
+            background: linear-gradient(45deg, #bb86fc, #6200ea);
+            color: white;
+            border: 1px solid #bb86fc;
+            position: relative;
+        }
+        
+        #dumb-btn:hover {
+            box-shadow: 0 0 15px rgba(187, 134, 252, 0.5);
+        }
+        
+        /* Picture Gallery */
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .gallery-item {
+            height: 140px;
+            border-radius: 10px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            background: linear-gradient(45deg, #333, #444);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #e0e0e0;
+            font-weight: 500;
+            border: 1px solid #555;
+            position: relative;
+        }
+        
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+        
+        .gallery-item:hover {
+            transform: scale(1.03);
+            box-shadow: 0 0 15px rgba(3, 218, 198, 0.5);
+        }
+        
+        .gallery-item:hover img {
+            transform: scale(1.1);
+        }
+        
+        .gallery-item::before {
+            content: "";
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            right: 5px;
+            bottom: 5px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        /* Gift Box */
+        #gift-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 20px 0;
+        }
+        
+        #gift-box {
+            font-size: 80px;
+            cursor: pointer;
+            transition: transform 0.5s, filter 0.5s;
+            color: #bb86fc;
+            margin-bottom: 15px;
+            filter: drop-shadow(0 0 5px #bb86fc);
+        }
+        
+        #gift-box:hover {
+            transform: scale(1.1);
+            filter: drop-shadow(0 0 15px #bb86fc);
+        }
+        
+        /* Note Popup */
+        .note-popup {
+            background: #1e1e1e;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: left;
+            display: none;
+            color: #e0e0e0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            margin-top: 15px;
+            width: 100%;
+            border: 1px solid #bb86fc;
+            position: relative;
+        }
+        
+        .note-popup:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 30px;
+            background: rgba(187, 134, 252, 0.1);
+            border-bottom: 1px dashed #bb86fc;
+        }
+        
+        .note-popup h2 {
+            color: #03dac6;
+            text-align: center;
+            margin-top: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .note-popup p {
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+        
+        .note-popup .signature {
+            text-align: right;
+            margin-top: 20px;
+            font-style: italic;
+            color: #bb86fc;
+        }
+        
+        /* Navigation */
+        .nav-btn {
+            padding: 12px 25px;
+            background: linear-gradient(45deg, #bb86fc, #6200ea);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+        
+        .nav-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(187, 134, 252, 0.5);
+        }
+        
+        /* Animations */
+        @keyframes timer {
+            from { width: 100%; }
+            to { width: 0%; }
+        }
+        
+        @keyframes grow {
+            0% { transform: scale(1); }
+            100% { transform: scale(20); }
+        }
+        
+        .growing {
+            animation: grow 3s forwards;
+        }
+        
+        .visible {
+            display: block;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        
+        .shake {
+            animation: shake 0.3s ease-in-out;
+        }
+        
+        /* Responsive Design */
+        @media (min-width: 768px) {
+            section {
+                padding: 30px;
+            }
+            
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            .gallery {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .gallery-item {
+                height: 160px;
+            }
+            
+            .options {
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .option {
+                width: 45%;
+            }
+            
+            .choice-buttons {
+                flex-direction: row;
+                justify-content: center;
+            }
+            
+            .choice-btn {
+                padding: 15px 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Loading Screen -->
+        <section id="loading-screen" class="visible">
+            <h1> Surprise...</h1>
+            <div class="loading-bar-container">
+                <div class="loading-bar" id="loading-bar"></div>
+            </div>
+            <p class="loading-text">beep baap boooppp</p>
+        </section>
+
+        <!-- Funny Questions -->
+        <section id="funny-questions">
+            <h1>Mei banaunga karodh pati?</h1>
+            <div id="question-container">
+                <!-- Questions will be inserted here by JavaScript -->
+            </div>
+            <div id="quiz-result"></div>
+        </section>
+
+        <!-- Smart vs Dumb Choice -->
+        <section id="smart-dumb">
+            <h1>Time for an Important Choice</h1>
+            <p>Are you smart or are you dumb? Choose wisely!(1prefer u choose smart)</p>
+            <div class="choice-buttons">
+                <button id="smart-btn" class="choice-btn">I'm Smart</button>
+                <button id="dumb-btn" class="choice-btn">I'm Dumb</button>
+            </div>
+        </section>
+
+        <!-- Picture Gallery -->
+        <section id="gallery">
+            <h1>Memories</h1>
+            <p>khibhikhichiuhi!</p>
+            <div class="gallery">
+                <div class="gallery-item">
+                    <img src="photo1.jpg" alt="Beach Day">
+                </div>
+                <div class="gallery-item">
+                    <img src="photo2.jpg" alt="Movie Night">
+                </div>
+                <div class="gallery-item">
+                    <img src="photo3.jpg" alt="Birthday Party">
+                </div>
+                <div class="gallery-item">
+                    <img src="photo4.jpg" alt="Road Trip">
+                </div>
+                <div class="gallery-item">
+                    <img src="photo5.jpg" alt="Coffee Time">
+                </div>
+                <div class="gallery-item">
+                    <img src="photo6.jpg" alt="Netflix & Chill">
+                </div>
+            </div>
+            <button class="nav-btn" id="to-gift">Continue to Gift</button>
+        </section>
+
+        <!-- Gift Box Surprise -->
+        <section id="gift-section">
+            <h1>Your Gift</h1>
+            <p>Click on the gift box to reveal your surprise!</p>
+            <div id="gift-container">
+                <div id="gift-box">🎁</div>
+                <p>Click me!</p>
+            </div>
+            <div class="note-popup" id="note-popup">
+                <h2>Happy Birthday!</h2>
+                <p>Dear Rigudha,</p>
+                <p> Wishing you all the happiness, success, and good health in the year ahead. 19 is a special age — no longer a teenager(buddha:p), but still young enough to enjoy life to the fullest.</p>
+                <p> I hope this year brings you new opportunities, great memories, and everything you've been working hard for. Enjoy your day and make it count!"</p>
+                <p class="signature">With all my love,<br>Your sisy</p>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Loading screen animation
+            const loadingBar = document.getElementById('loading-bar');
+            const loadingScreen = document.getElementById('loading-screen');
+            let width = 0;
+            
+            const loadingInterval = setInterval(() => {
+                if (width >= 100) {
+                    clearInterval(loadingInterval);
+                    setTimeout(() => {
+                        loadingScreen.classList.remove('visible');
+                        showSection('funny-questions');
+                        startQuestions();
+                    }, 500);
+                } else {
+                    width += 2;
+                    loadingBar.style.width = width + '%';
+                }
+            }, 50);
+
+            // Funny Questions
+            const questions = [
+                {
+                    question: "What's the capital of Finland?",
+                    options: ["Stockholm", "Oslo", "Reykjavik", "Copenhagen"],
+                    correct: -1 // All options are wrong
+                },
+                {
+                    question: "Which planet is known as the Red Planet?",
+                    options: ["Venus", "Jupiter", "Saturn", "Uranus"],
+                    correct: -1 // All options are wrong
+                },
+                {
+                    question: "What's the best way to eat pizza?",
+                    options: ["With a fork and knife", "Upside down", "Through your nose", "While standing on one leg"],
+                    correct: -1 // All options are wrong
+                }
+            ];
+
+            let score = 0;
+            
+            function startQuestions() {
+                const questionContainer = document.getElementById('question-container');
+                const quizResult = document.getElementById('quiz-result');
+                let currentQuestion = 0;
+                
+                function showQuestion(index) {
+                    if (index >= questions.length) {
+                        // Show final message
+                        quizResult.innerHTML = `
+                            <h2>Quiz Complete!</h2>
+                            <p>You scored ${score} out of ${questions.length} - but don't worry, all answers were wrong anyway! 😂</p>
+                            <button class="nav-btn" id="to-smart-dumb">Continue</button>
+                        `;
+                        
+                        document.getElementById('to-smart-dumb').addEventListener('click', function() {
+                            document.getElementById('funny-questions').classList.remove('visible');
+                            showSection('smart-dumb');
+                            setupSmartDumb();
+                        });
+                        
+                        return;
+                    }
+                    
+                    const q = questions[index];
+                    questionContainer.innerHTML = `
+                        <div class="question">
+                            <h2>${q.question}</h2>
+                            <div class="timer-container">
+                                <div class="timer-bar"></div>
+                            </div>
+                            <div class="options">
+                                ${q.options.map((opt, i) => `<button class="option" data-index="${i}">${opt}</button>`).join('')}
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Add event listeners to options
+                    const optionButtons = document.querySelectorAll('.option');
+                    optionButtons.forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const selectedIndex = parseInt(this.getAttribute('data-index'));
+                            
+                            // Disable all buttons
+                            optionButtons.forEach(b => b.disabled = true);
+                            
+                            // All options are wrong
+                            this.classList.add('wrong');
+                            this.classList.add('shake');
+                            
+                            // Move to next question after a delay
+                            setTimeout(() => {
+                                currentQuestion++;
+                                showQuestion(currentQuestion);
+                            }, 1500);
+                        });
+                    });
+                    
+                    // Set up the next question after 10 seconds if no answer selected
+                    setTimeout(() => {
+                        if (currentQuestion === index) { // Check if still on same question
+                            optionButtons.forEach(b => b.disabled = true);
+                            
+                            setTimeout(() => {
+                                currentQuestion++;
+                                showQuestion(currentQuestion);
+                            }, 1000);
+                        }
+                    }, 10000);
+                }
+                
+                showQuestion(currentQuestion);
+            }
+
+            // Smart vs Dumb Choice
+            function setupSmartDumb() {
+                const smartBtn = document.getElementById('smart-btn');
+                const dumbBtn = document.getElementById('dumb-btn');
+                
+                smartBtn.addEventListener('click', function() {
+                    smartBtn.style.display = 'none';
+                    dumbBtn.classList.add('growing');
+                    
+                    setTimeout(() => {
+                        document.getElementById('smart-dumb').classList.remove('visible');
+                        showSection('gallery');
+                    }, 3000);
+                });
+                
+                dumbBtn.addEventListener('click', function() {
+                    document.getElementById('smart-dumb').classList.remove('visible');
+                    showSection('gallery');
+                });
+            }
+
+            // Picture Gallery navigation
+            document.getElementById('to-gift').addEventListener('click', function() {
+                document.getElementById('gallery').classList.remove('visible');
+                showSection('gift-section');
+            });
+
+            // Gift Box Surprise
+            const giftBox = document.getElementById('gift-box');
+            const notePopup = document.getElementById('note-popup');
+            
+            giftBox.addEventListener('click', function() {
+                giftBox.textContent = '🎉';
+                giftBox.style.transform = 'scale(1.2)';
+                
+                setTimeout(() => {
+                    notePopup.style.display = 'block';
+                }, 1000);
+            });
+
+            // Helper function to show sections
+            function showSection(sectionId) {
+                document.querySelectorAll('section').forEach(section => {
+                    section.classList.remove('visible');
+                });
+                document.getElementById(sectionId).classList.add('visible');
+                
+                // Scroll to the section
+                document.getElementById(sectionId).scrollIntoView({behavior: 'smooth'});
+            }
+        });
+    </script>
+</body>
+</html>
